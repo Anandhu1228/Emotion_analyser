@@ -1,0 +1,445 @@
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: row; 
+        flex-wrap: wrap;
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+    }
+
+    .emotion-card {
+        flex: 1; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .emotion-card img {
+        max-width: 80%;
+        max-height: 80%;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    .love { background-color: #FF6347; }
+    .neutral { background-color: #808080; }
+    .happiness { background-color: #FFD700; }
+    .sadness { background-color: #4682B4; }
+    .relief { background-color: #32CD32; }
+    .hate { background-color: #8B0000; }
+    .anger { background-color: #FF4500; }
+    .fun { background-color: #FFA500; }
+    .enthusiasm { background-color: #00CED1; }
+    .surprise { background-color: #D2691E; }
+    .empty { background-color: #A9A9A9; }
+    .worry { background-color: #B0C4DE; }
+
+    #loading-indicator {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        z-index: 3000;
+    }
+
+    #loading-indicator p {
+        margin: 10px 0;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    #loading-indicator .spinner {
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top: 4px solid white;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .popupform_seemore {
+        position: fixed;
+        top: 85%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 5px;
+        z-index: 2001;
+        background-color: rgb(255, 255, 255);
+        width: auto;
+        overflow-y: auto;
+        border-radius: 20px;
+        box-shadow: 0 4px 30px 15px rgba(0, 0, 0, 0.2);
+        padding: 50px;
+        padding-top: 20px;
+    }
+
+    @media (max-width: 1550px) {
+        .popupform_seemore{
+            min-width: 50%;
+        }
+    }
+
+    @media (max-width: 1250px) {
+        .popupform_seemore {
+            min-width: 54%;
+        }
+    }
+
+    @media (max-width: 1050px) {
+        .popupform_seemore {
+            min-width: 58%;
+        }
+    }
+
+    @media (max-width: 850px) {
+        .popupform_seemore {
+            min-width: 62%;
+        }
+    }
+
+    @media (max-width: 650px) {
+        .popupform_seemore {
+            min-width: 90%;
+            padding: 30px;
+            padding-top: 10px;
+        }
+    }
+
+    .textarea-container {
+        position: absolute;
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        max-width: 600px;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    .textarea-container textarea {
+        flex: 1;
+        border: none;
+        border-radius: 10px;
+        padding: 10px;
+        font-size: 16px;
+        resize: none;
+        max-height: 150px;
+        overflow-y: auto;
+        background-color: transparent;
+        outline: none; 
+        background-color: rgba(255, 255, 255, 0.7);
+    }
+
+    #send_button {
+        width: 50px;
+        height: 50px;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border-radius: 0 10px 10px 0;
+        transition: background-color 0.3s ease;
+        font-size: 18px;
+        color: white; 
+    }
+
+    .glow {
+        box-shadow: 0 0 20px 10px rgba(255, 255, 255, 0.8);
+        z-index: 3000;
+    }
+
+    .dull {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    #overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 2000;
+        display: none;
+    }
+
+</style>
+
+<body>
+
+    <div id="overlay"></div>
+
+    <div id="seemore_popup" class="popupform_seemore " style="display: none;">
+        <div style="width:100%" class="rows">
+        </div>
+    </div>
+
+    <div id="loading-indicator">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+    <!-- Love Card -->
+    <div class="emotion-card love">
+        <img src="/images/love.png" alt="Love Expression">
+    </div>
+
+    <!-- Neutral Card -->
+    <div class="emotion-card neutral">
+        <img src="/images/neutral.png" alt="Neutral Expression">
+    </div>
+
+    <!-- Happiness Card -->
+    <div class="emotion-card happiness">
+        <img src="/images/happy.png" alt="Happiness Expression">
+    </div>
+
+    <!-- Sadness Card -->
+    <div class="emotion-card sadness">
+        <img src="/images/sad.png" alt="Sadness Expression">
+    </div>
+
+    <!-- Relief Card -->
+    <div class="emotion-card relief">
+        <img src="/images/relief.png" alt="Relief Expression">
+    </div>
+
+    <!-- Hate Card -->
+    <div class="emotion-card hate">
+        <img src="/images/hate.png" alt="Hate Expression">
+    </div>
+
+    <!-- Anger Card -->
+    <div class="emotion-card anger">
+        <img src="/images/anger.png" alt="Anger Expression">
+    </div>
+
+    <!-- Fun Card -->
+    <div class="emotion-card fun">
+        <img src="/images/fun.png" alt="Fun Expression">
+    </div>
+
+    <!-- Enthusiasm Card -->
+    <div class="emotion-card enthusiasm">
+        <img src="/images/enthusiasm.png" alt="Enthusiasm Expression">
+    </div>
+
+    <!-- Surprise Card -->
+    <div class="emotion-card surprise">
+        <img src="/images/surprise.png" alt="Surprise Expression">
+    </div>
+
+    <!-- Empty Card -->
+    <div class="emotion-card empty">
+        <img src="/images/empty.png" alt="Empty Expression">
+    </div>
+
+    <!-- Worry Card -->
+    <div class="emotion-card worry">
+        <img src="/images/worry.png" alt="Worry Expression">
+    </div>
+
+    <div class="textarea-container">
+        <textarea id="message_text" placeholder="Type your message here..."></textarea>
+        <button id="send_button" class="btn btn_abs">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </div>
+
+
+    <script>
+
+        function showLoadingIndicator() {
+            document.getElementById('loading-indicator').style.display = 'block';
+            showOverlay();
+            document.body.style.overflow = 'hidden';
+        }
+
+
+        function hideLoadingIndicator() {
+            document.getElementById('loading-indicator').style.display = 'none';
+            hideOverlay();
+            document.body.style.overflow = 'auto';
+        }
+
+
+        function showOverlay() {
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+
+        function hideOverlay() {
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+
+        function closePopupSeeMore() {
+            document.getElementById("seemore_popup").style.display = "none";
+            var overlay = document.getElementById('see_more_popup_overlay')
+            if (overlay) {
+                overlay.remove();
+            }
+            chatContainer.style.overflow = "auto";
+        }
+
+
+        document.querySelector('textarea').addEventListener('input', function () {
+            this.style.height = 'auto'; 
+            this.style.height = `${Math.min(this.scrollHeight, 150)}px`;
+        });
+
+
+        document.getElementById('send_button').addEventListener('click', async () => {
+            const message = document.getElementById('message_text').value.trim();
+
+            if (!message) {
+                alert('Please enter a message before sending!');
+                return;
+            }
+
+            showLoadingIndicator();
+
+            try {
+
+                const response = await fetch('/send_message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json', 
+                    },
+                    body: JSON.stringify({ message: message }),
+                });
+
+                if (response.ok) {
+                    const result = await response.text();
+
+                    hideLoadingIndicator();
+                    simulateEmotionResult(result)
+
+                    document.getElementById('message_text').value = '';
+                } else {
+                    console.error('Failed to process message:', response.statusText);
+                    alert('Failed to process the message. Please try again.');
+                    hideLoadingIndicator();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while processing the message.');
+                hideLoadingIndicator();
+            }
+        });
+
+
+        function showEmotionPopup(emotion) {
+            const popup = document.getElementById('seemore_popup');
+            const rows = popup.querySelector('.rows');
+
+            /*const emotionEmojis = {
+                love: '❤️',
+                neutral: '😐',
+                happiness: '😊',
+                sadness: '😢',
+                relief: '😌',
+                hate: '💔',
+                anger: '😡',
+                fun: '😂',
+                enthusiasm: '🤩',
+                surprise: '😲',
+                empty: '😶',
+                worry: '😟',
+                boredom: '😴'
+            };*/
+
+            // Map emotions to their respective GIFs (motion emojis)
+            const emotionGifs = {
+                love: '/images/love.gif',
+                neutral: '/images/neutral.gif',
+                happiness: '/images/happy.gif',
+                sadness: '/images/sad.gif',
+                relief: '/images/relief.gif',
+                hate: '/images/hate.gif',
+                anger: '/images/anger.gif',
+                fun: '/images/fun.gif',
+                enthusiasm: '/images/enthusiasm.gif',
+                surprise: '/images/surprise.gif',
+                empty: '/images/empty.gif',
+                worry: '/images/worry.gif',
+                boredom: '/images/boredom.gif'
+            };
+
+            // Get the GIF for the emotion, or use a default GIF if not found
+            const gif = emotionGifs[emotion] || '/images/emojis/default.gif';
+
+            // Set the popup content to include the motion emoji (GIF) and the emotion name
+            rows.innerHTML = `
+                <div style="text-align: center;">
+                    <img src="${gif}" alt="${emotion}" style="width: 75px; height: 75px; display: block; margin: 0 auto;" />
+                    <h5>${emotion.charAt(0).toUpperCase() + emotion.slice(1)}</h5>
+                </div>`;
+            popup.style.display = 'block'; // Show the popup
+        }
+
+
+        function highlightEmotion(emotion) {
+            const cards = document.querySelectorAll('.emotion-card');
+            const overlay = document.getElementById('overlay');
+            overlay.style.display = 'block';
+
+            cards.forEach(card => {
+                if (card.classList.contains(emotion)) {
+                    card.classList.add('glow');
+                    card.classList.remove('dull');
+                } else {
+                    card.classList.add('dull');
+                    card.classList.remove('glow');
+                }
+            });
+
+            showEmotionPopup(emotion);
+        }
+
+
+        function resetCards() {
+            const cards = document.querySelectorAll('.emotion-card');
+            const overlay = document.getElementById('overlay');
+
+            overlay.style.display = 'none';
+            cards.forEach(card => {
+                card.classList.remove('glow', 'dull'); 
+            });
+
+            closePopupSeeMore();
+        }
+
+
+        function simulateEmotionResult(emotion) {
+            highlightEmotion(emotion);
+
+            setTimeout(resetCards, 3000);
+        }
+
+    </script>
+</body>
+
